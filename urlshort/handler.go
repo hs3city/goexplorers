@@ -13,14 +13,17 @@ import (
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
-	//	TODO: Implement this...
+
 	fmt.Println("gotghrdthdrtf")
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(r.URL)
 
 		shortenedUrl := pathsToUrls[r.URL.String()]
-		io.WriteString(w, shortenedUrl)
+
+		//io.WriteString(w, shortenedUrl)
+
+		http.Redirect(w, r, shortenedUrl, http.StatusMovedPermanently)
 	})
 
 	// return getHello
