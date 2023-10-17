@@ -25,4 +25,4 @@ jobs:
       run: go build -v ./quiz/main.go
 
     - name: Test
-      run: go test -v ./quiz/main_test.go
+      run: cd quiz && go test -run .
