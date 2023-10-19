@@ -1,7 +1,7 @@
 package urlshort
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 )
 
@@ -11,15 +11,16 @@ import (
 // that each key in the map points to, in string format).
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
-func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
+func MapHandler(pathsToUrls map[string]string, fallback http.Handler, logger *slog.Logger) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Request url:", r.URL)
+		logger.Info("Request url: " + r.URL.String())
 
 		shortenedUrl, exists := pathsToUrls[r.URL.String()]
 		if !exists {
-			fmt.Println("No url in map")
+			logger.Warn("No url in map")
 			fallback.ServeHTTP(w, r)
 		} else {
+			logger.Info("Redirect...")
 			http.Redirect(w, r, shortenedUrl, http.StatusMovedPermanently)
 		}
 	})
