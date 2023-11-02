@@ -27,10 +27,7 @@ func main() {
   url: "https://github.com/gophercises/urlshort"
 - path: /urlshort-final
   url: "https://github.com/gophercises/urlshort/tree/solution"`
-	// 	yaml := `
-	// path: /urlshort
-	// url: "https://github.com/gophercises/urlshort"
-	// `
+
 	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler, logger)
 	if err != nil {
 		panic(err)

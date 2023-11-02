@@ -54,18 +54,12 @@ func YAMLHandler(yml []byte, fallback http.Handler, logger *slog.Logger) (http.H
 	emptyMap := map[string]string{}
 	urlMapper := make([]map[interface{}]interface{}, 1, 1)
 
-	//urlMapper := UrlMapper{}
-	//var urlMapper UrlMapperEntry
 	err := yaml.Unmarshal(yml, &urlMapper)
 	if err != nil {
 		logger.Error("error: " + err.Error())
 	}
 
-	// cleaned := strings.TrimLeft(urlMapper["path"].(string), "/")
-	// emptyMap[cleaned] = urlMapper["url"].(string)
-
 	for _, mapper := range urlMapper {
-		//cleaned := strings.TrimLeft(mapper["path"].(string), "/")
 		emptyMap[mapper["path"].(string)] = mapper["url"].(string)
 	}
 
