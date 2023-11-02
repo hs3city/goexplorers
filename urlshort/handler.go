@@ -3,7 +3,15 @@ package urlshort
 import (
 	"log/slog"
 	"net/http"
+
+	"gopkg.in/yaml.v3"
 )
+
+type UrlMapperEntry struct {
+	path string `yaml:"path"`
+	url  string `yaml:"url"`
+}
+type UrlMapper []UrlMapperEntry
 
 // MapHandler will return an http.HandlerFunc (which also
 // implements http.Handler) that will attempt to map any
@@ -42,7 +50,24 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler, logger *sl
 //
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
-func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-	// TODO: Implement this...
-	return nil, nil
+func YAMLHandler(yml []byte, fallback http.Handler, logger *slog.Logger) (http.HandlerFunc, error) {
+	emptyMap := map[string]string{}
+	urlMapper := make([]map[interface{}]interface{}, 1, 1)
+
+	//urlMapper := UrlMapper{}
+	//var urlMapper UrlMapperEntry
+	err := yaml.Unmarshal(yml, &urlMapper)
+	if err != nil {
+		logger.Error("error: " + err.Error())
+	}
+
+	// cleaned := strings.TrimLeft(urlMapper["path"].(string), "/")
+	// emptyMap[cleaned] = urlMapper["url"].(string)
+
+	for _, mapper := range urlMapper {
+		//cleaned := strings.TrimLeft(mapper["path"].(string), "/")
+		emptyMap[mapper["path"].(string)] = mapper["url"].(string)
+	}
+
+	return MapHandler(emptyMap, fallback, logger), nil
 }
