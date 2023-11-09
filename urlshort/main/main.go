@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	// "github.com/gophercises/urlshort"
 )
 
 func main() {
@@ -21,12 +20,12 @@ func main() {
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux, logger)
 
 	// Build the YAMLHandler using the mapHandler as the fallback
+	yamlFile, errReader := os.ReadFile("urlshort/urls.yaml")
+	if errReader != nil {
+		panic(errReader)
+	}
 
-	yaml := `
-- path: /urlshort
-  url: "https://github.com/gophercises/urlshort"
-- path: /urlshort-final
-  url: "https://github.com/gophercises/urlshort/tree/solution"`
+	yaml := string(yamlFile)
 
 	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler, logger)
 	if err != nil {

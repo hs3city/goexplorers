@@ -52,7 +52,10 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler, logger *sl
 // a mapping of paths to urls.
 func YAMLHandler(yml []byte, fallback http.Handler, logger *slog.Logger) (http.HandlerFunc, error) {
 	emptyMap := map[string]string{}
-	urlMapper := make([]map[interface{}]interface{}, 1, 1)
+	var urlMapper []struct {
+		Path string `yaml:"path"`
+		URL  string `yaml:"url"`
+	}
 
 	err := yaml.Unmarshal(yml, &urlMapper)
 	if err != nil {
@@ -60,7 +63,7 @@ func YAMLHandler(yml []byte, fallback http.Handler, logger *slog.Logger) (http.H
 	}
 
 	for _, mapper := range urlMapper {
-		emptyMap[mapper["path"].(string)] = mapper["url"].(string)
+		emptyMap[mapper.Path] = mapper.URL
 	}
 
 	return MapHandler(emptyMap, fallback, logger), nil
