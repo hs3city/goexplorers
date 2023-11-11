@@ -1,6 +1,7 @@
 package urlshort
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -8,9 +9,10 @@ import (
 )
 
 type UrlMapperEntry struct {
-	path string `yaml:"path"`
-	url  string `yaml:"url"`
+	Path string `json:"path" yaml:"path"`
+	Url  string `json:"url" yaml:"url"`
 }
+
 type UrlMapper []UrlMapperEntry
 
 // MapHandler will return an http.HandlerFunc (which also
@@ -19,19 +21,19 @@ type UrlMapper []UrlMapperEntry
 // that each key in the map points to, in string format).
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
-func MapHandler(pathsToUrls map[string]string, fallback http.Handler, logger *slog.Logger) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Request url: " + r.URL.String())
+func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Request url: " + r.URL.String())
 
 		shortenedUrl, exists := pathsToUrls[r.URL.String()]
 		if !exists {
-			logger.Warn("No url in map")
+			slog.Warn("No url in map")
 			fallback.ServeHTTP(w, r)
 		} else {
-			logger.Info("Redirect...")
+			slog.Info("Redirect...")
 			http.Redirect(w, r, shortenedUrl, http.StatusMovedPermanently)
 		}
-	})
+	}
 }
 
 // YAMLHandler will parse the provided YAML and then return
@@ -50,21 +52,35 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler, logger *sl
 //
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
-func YAMLHandler(yml []byte, fallback http.Handler, logger *slog.Logger) (http.HandlerFunc, error) {
+func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	emptyMap := map[string]string{}
-	var urlMapper []struct {
-		Path string `yaml:"path"`
-		URL  string `yaml:"url"`
-	}
+	var urlMapper UrlMapper
 
 	err := yaml.Unmarshal(yml, &urlMapper)
 	if err != nil {
-		logger.Error("error: " + err.Error())
+		slog.Error("error: " + err.Error())
+		return nil, err
 	}
 
 	for _, mapper := range urlMapper {
-		emptyMap[mapper.Path] = mapper.URL
+		emptyMap[mapper.Path] = mapper.Url
 	}
 
-	return MapHandler(emptyMap, fallback, logger), nil
+	return MapHandler(emptyMap, fallback), nil
+}
+
+func JSONHandler(jsonInput []byte, fallback http.Handler) (http.HandlerFunc, error) {
+	urlMap := map[string]string{}
+	var urlMapper UrlMapper
+
+	err := json.Unmarshal(jsonInput, &urlMapper)
+	if err != nil {
+		slog.Error("error: " + err.Error())
+		return nil, err
+	}
+
+	for _, mapper := range urlMapper {
+		urlMap[mapper.Path] = mapper.Url
+	}
+	return MapHandler(urlMap, fallback), nil
 }
