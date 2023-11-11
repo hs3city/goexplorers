@@ -21,8 +21,14 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Build
+    - name: Build quiz
       run: go build -v ./quiz/main.go
 
-    - name: Test
-      run: cd quiz && go test -run .
+    - name: Test quiz
+      run: cd $GITHUB_WORKSPACE && cd quiz && go test -run .
+
+    - name: Build urlshort
+      run: go build -v ./urlshort/main.go
+
+    - name: Test urlshort
+      run: cd $GITHUB_WORKSPACE && cd urlshort && go test -run .
