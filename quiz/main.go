@@ -4,11 +4,14 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
-	file, err := os.Open("quiz/problems.csv")
+	file, err := os.Open("problems.csv")
 	if err != nil {
+		fmt.Printf(os.Getwd())
 		newerr := fmt.Errorf("shit hit the fan: %v", err)
 		panic(newerr)
 	}
@@ -21,9 +24,28 @@ func main() {
 		panic(newerr)
 	}
 
+	totalAnswers := len(data)
+	correctAnswers := 0
+
 	for _, line := range data {
-		fmt.Printf("How much is %s ?\n", line[0])
+		question, answer := line[0], line[1]
+		fmt.Printf("How much is %s ?\n", question)
 		var input int
 		fmt.Scan(&input)
+
+		verify, err := strconv.Atoi(strings.TrimSpace(answer))
+
+		if err != nil {
+			newerr := fmt.Errorf("failed to convert to int: %v", err)
+			panic(newerr)
+		}
+
+		if input == verify {
+			correctAnswers++
+		}
 	}
+
+	fmt.Printf("Total answers: %d\n", totalAnswers)
+	fmt.Printf("Correct answers: %d\n", correctAnswers)
+	fmt.Printf("Score: %f%%\n", float64(correctAnswers)/float64(totalAnswers)*100)
 }
