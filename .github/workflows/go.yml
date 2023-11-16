@@ -14,15 +14,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
 
-    - name: Build
-      run: go build -v ./quiz/main.go
+      - name: Build quiz
+        run: cd quiz && go build -v .
 
-    - name: Test
-      run: cd quiz && go test -run .
+      - name: Test quiz
+        run: cd quiz && go test -run .
+
+      - name: Build urlshort
+        run: cd urlshort && go build -v .
+
+      - name: Test urlshort
+        run: cd urlshort && go test -run .
