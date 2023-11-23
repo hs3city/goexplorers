@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
 	"os"
 )
@@ -24,5 +25,15 @@ func handlerHttp(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	w.Write([]byte(string(story.Intro.Title)))
+	t := template.Must(template.New("new").ParseFiles("template.html"))
+
+	err = t.Execute(w, story.Intro.Title)
+
+	if err != nil {
+		panic(err)
+	}
+
+	// w.Write([]byte(string(story.Intro.Title)))
+
+	// func setTemplate(){}
 }
