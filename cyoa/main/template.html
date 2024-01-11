@@ -1,7 +1,26 @@
 <html>
 
 <body>
-    <h1> {{ . }} </h1>
+
+    <h1> {{ .Title }} </h1>
+    <div class="our-story">
+        {{range $idx, $para := .Story}}
+        <div>
+            <p>{{$para}}</p>
+        </div>
+        {{end}}
+    </div>
+    {{ if .Options }}
+    <h2>Go to:</h2>
+    {{ end}}
+    {{range $idx, $option := .Options}}
+    <div>
+        <p>{{$option.Text}}</p>
+        <a href="{{$option.Arc}}">{{$option.Arc}}</a>
+    </div>
+    {{end}}
+
+
 </body>
 
 </html>
