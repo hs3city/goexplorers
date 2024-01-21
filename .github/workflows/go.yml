@@ -23,12 +23,20 @@ jobs:
 
       - name: Build quiz
         run: cd quiz && go build -v .
-
       - name: Test quiz
         run: cd quiz && go test -run .
 
       - name: Build urlshort
         run: cd urlshort && go build -v .
-
       - name: Test urlshort
         run: cd urlshort && go test -run .
+
+      - name: Build cyoa
+        run: cd cyoa/main && go build -v .
+      - name: Test cyoa
+        run: cd cyoa/main && go test -run .
+
+      - name: Build link
+        run: cd link && go build -v .
+      - name: Test link
+        run: cd link && go test -run .
