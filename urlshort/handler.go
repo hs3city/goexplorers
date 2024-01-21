@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"os"
 
 	"gopkg.in/yaml.v3"
 )
+
+var logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 type UrlMapperEntry struct {
 	Path string `json:"path" yaml:"path"`
@@ -23,14 +26,14 @@ type UrlMapper []UrlMapperEntry
 // http.Handler will be called instead.
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		slog.Info("Request url: " + r.URL.String())
+		logger.Info("Request url: " + r.URL.String())
 
 		shortenedUrl, exists := pathsToUrls[r.URL.String()]
 		if !exists {
-			slog.Warn("No url in map")
+			logger.Warn("No url in map")
 			fallback.ServeHTTP(w, r)
 		} else {
-			slog.Info("Redirect...")
+			logger.Info("Redirect...")
 			http.Redirect(w, r, shortenedUrl, http.StatusMovedPermanently)
 		}
 	}
@@ -58,7 +61,7 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 
 	err := yaml.Unmarshal(yml, &urlMapper)
 	if err != nil {
-		slog.Error("error: " + err.Error())
+		logger.Error("Error: " + err.Error())
 		return nil, err
 	}
 
@@ -75,7 +78,7 @@ func JSONHandler(jsonInput []byte, fallback http.Handler) (http.HandlerFunc, err
 
 	err := json.Unmarshal(jsonInput, &urlMapper)
 	if err != nil {
-		slog.Error("error: " + err.Error())
+		logger.Error("Error: " + err.Error())
 		return nil, err
 	}
 
