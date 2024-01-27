@@ -22,7 +22,7 @@
 # vendor/
 
 # Go workspace file
-go.work
+# go.work  # explicitly un-ignored, we want to have the same workspace experience
 
 ### GoLand ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider

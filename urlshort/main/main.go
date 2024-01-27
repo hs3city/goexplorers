@@ -23,32 +23,20 @@ func main() {
 	}
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
-	// Build the YAMLHandler using the mapHandler as the fallback
-	yamlFile, err := os.ReadFile(urlMapYaml)
-	if err != nil {
-		panic(err)
-	}
-
-	jsonFile, err := os.ReadFile(urlMapJson)
-	if err != nil {
-		panic(err)
-	}
+	yamlFile := catch(os.ReadFile(urlMapYaml))
+	jsonFile := catch(os.ReadFile(urlMapJson))
 
 	yaml := string(yamlFile)
 	json := string(jsonFile)
 
-	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler)
-	if err != nil {
-		panic(err)
-	}
-
-	jsonHandler, err := urlshort.JSONHandler([]byte(json), yamlHandler)
-	if err != nil {
-		panic(err)
-	}
+	yamlHandler := catch(urlshort.YAMLHandler([]byte(yaml), mapHandler))
+	jsonHandler := catch(urlshort.JSONHandler([]byte(json), yamlHandler))
 
 	logger.Info("Starting the server on :8080")
-	http.ListenAndServe(":8080", jsonHandler)
+	if err := http.ListenAndServe(":8080", jsonHandler); err != nil {
+		logger.Error("Error starting server", err)
+	}
+
 }
 
 func defaultMux() *http.ServeMux {
@@ -59,4 +47,12 @@ func defaultMux() *http.ServeMux {
 
 func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello, world!")
+}
+
+func catch[T any](val T, err error) T {
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	return val
 }
