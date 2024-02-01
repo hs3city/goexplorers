@@ -63,8 +63,7 @@ func parseLinks(file os.File) []Link {
 			break
 		}
 
-		switch tokenType {
-		case html.StartTagToken:
+		if tokenType == html.StartTagToken {
 			token := tokenizer.Token()
 			if token.DataAtom.String() == "a" && len(token.Attr) > 0 {
 				for _, attr := range token.Attr {
@@ -74,13 +73,11 @@ func parseLinks(file os.File) []Link {
 					}
 				}
 			}
-
-		case html.TextToken:
+		} else if tokenType == html.TextToken {
 			if catchText {
 				buffer.Write(tokenizer.Raw())
 			}
-
-		case html.EndTagToken:
+		} else if tokenType == html.EndTagToken {
 			token := tokenizer.Token()
 			if token.DataAtom.String() == "a" {
 				link.Text = strings.TrimSpace(buffer.String())
@@ -104,4 +101,3 @@ func processErrorToken(tokenizer *html.Tokenizer, tokenType html.TokenType) erro
 	}
 	return nil
 }
-
