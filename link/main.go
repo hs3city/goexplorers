@@ -29,7 +29,7 @@ func main() {
 }
 
 func parseUserInput() *string {
-	htmlFilePath := flag.String("file", "", "Path to the HTML file")
+	htmlFilePath := flag.String("file", "ex2.html", "Path to the HTML file")
 	flag.Parse()
 
 	if *htmlFilePath == "" {
@@ -53,6 +53,8 @@ func parseLinks(file os.File) []Link {
 	tokenizer := html.NewTokenizer(&file)
 	var links []Link
 	var buffer bytes.Buffer
+	// we can use string here as well
+	// var text string
 	var catchText bool
 	var link Link
 
@@ -76,6 +78,7 @@ func parseLinks(file os.File) []Link {
 		} else if tokenType == html.TextToken {
 			if catchText {
 				buffer.Write(tokenizer.Raw())
+				// text += string(tokenizer.Raw())
 			}
 		} else if tokenType == html.EndTagToken {
 			token := tokenizer.Token()
@@ -83,6 +86,7 @@ func parseLinks(file os.File) []Link {
 				link.Text = strings.TrimSpace(buffer.String())
 				links = append(links, link)
 				buffer.Reset()
+				// text = ""
 				catchText = false
 			}
 		}
