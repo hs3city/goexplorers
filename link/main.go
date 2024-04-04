@@ -1,4 +1,4 @@
-package main
+package link
 
 import (
 	"bytes"
@@ -24,7 +24,7 @@ func (l Link) String() string {
 func main() {
 	inputFile := readFile(*parseUserInput())
 	defer inputFile.Close()
-	links := parseLinks(*inputFile)
+	links := ParseLinks(*inputFile)
 	log.Println(links)
 }
 
@@ -49,7 +49,7 @@ func readFile(path string) *os.File {
 	return file
 }
 
-func parseLinks(file os.File) []Link {
+func ParseLinks(file os.File) []Link {
 	tokenizer := html.NewTokenizer(&file)
 	var links []Link
 	var buffer bytes.Buffer
